@@ -10,15 +10,17 @@ void setup(){
 }
 
 void loop(){
-  for(pos=0; pos<180; pos+=10){
+  //servo.write(90);
+  for(pos=0; pos<=180; pos+=180){
    servo.write(pos);
-   delay(300);
+   delay(100);
    Serial.println("forwards loop");
   }
-  delay(300);
-  for(pos=180; pos>0; pos-=10){
+  //delay(100);
+  for(pos=180; pos>=0; pos-=180){
    servo.write(pos);
-   delay(300);
+   delay(100);
    Serial.println("backwards loop"); 
   }
+  
 }
