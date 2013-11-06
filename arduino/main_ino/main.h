@@ -1,10 +1,3 @@
-#include <Servo.h>
-#include <PinChangeInt.h>
-#include <FreeSixIMU.h>
-#include <FIMU_ADXL345.h>
-#include <FIMU_ITG3200.h>
-#include <Wire.h>
-
 
 /* DEFINE PIN CONSTANTS HERE */
 

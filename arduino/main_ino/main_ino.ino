@@ -1,4 +1,11 @@
+#include <Servo.h>
+#include <PinChangeInt.h>
+#include <FreeSixIMU.h>
+#include <FIMU_ADXL345.h>
+#include <FIMU_ITG3200.h>
+#include <Wire.h>
 #include "main.h"
+
 
 /* 
  *  DEFINE VARIABLES
@@ -22,8 +29,8 @@ void setup(){
 	Serial.begin(9600);
 	pinMode(IR_PIN1, INPUT);
 	pinMode(IR_PIN2, INPUT);
-	PCIntPort::attachInterrupt(IR_PIN1, actOnDistance1, CHANGE);
-	PCIntPort::attachInterrupt(IR_PIN2, actOnDistance2, CHANGE);
+	//PCIntPort::attachInterrupt(IR_PIN1, actOnDistance1, CHANGE);
+	//PCIntPort::attachInterrupt(IR_PIN2, actOnDistance2, CHANGE);
 	caudal.attach(CAUDAL_PIN);
 	Serial.println("Okay, serial is instantiated");
 }
@@ -108,8 +115,9 @@ void writeToDorsalServo(Servo servo){
 	int pos = 0;
 	for(pos = 0; pos <=180 ; pos +=180){
 		servo.write(pos);
+                delay(100);
 	}
-	for(pos=0; pos<=180, pos+=180){
+	for(pos=0; pos<=180; pos+=180){
 		servo.write(pos);
 	}
 }
@@ -121,9 +129,10 @@ void readIRSensor(int pin, int pin2){ // READ IR SENSOR
 	float volts2 = analogRead(pin2)*0.0048828125;
 	float distance2 = 65*pow(volts2, -1.10);
 	Serial.println(distance);
-	if(distance < 500 && distance2 < 500){
+	/*if(distance < 500 && distance2 < 500){
 		
 	}
+        */
 	delay(100);
 }
 
