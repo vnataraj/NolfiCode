@@ -22,8 +22,7 @@ int count=0;
 bool distance2 = false;
 bool up = false;
 bool down = false;
-float angles[3]; // yaw/pitch/roll
-//float saved[3]; //saved yaw/pitch/roll
+float angles[3]; 
 
 FreeSixIMU sixDOF = FreeSixIMU();
 
@@ -32,17 +31,18 @@ FreeSixIMU sixDOF = FreeSixIMU();
 void setup(){
 	sei();  // enable interrupts
 	Serial.begin(9600);
-       // Wire.begin();
+        Wire.begin();
 	pinMode(IR_PIN1, INPUT);
-	//pinMode(IR_PIN2, INPUT);
+	pinMode(IR_PIN2, INPUT);
         Serial.println("Init 6DOF");
-       // sixDOF.init();
-	//PCintPort::attachInterrupt(IR_PIN1, &actOnDistance1, FALLING);
-	//PCIntPort::attachInterrupt(IR_PIN2, actOnDistance2, CHANGE);
+        sixDOF.init();
+	PCintPort::attachInterrupt(IR_PIN1, &actOnDistance1, FALLING);
+	PCintPort::attachInterrupt(IR_PIN2, actOnDistance2, FALLING);
 	caudal.attach(CAUDAL_PIN);
+        dorsal.attach(DORSAL_PIN);
         Serial.println("Init complete");
-        //pectoral1.attach(PECTORAL_LEFT_PIN);
-        //pectoral2.attach(PECTORAL_RIGHT_PIN);
+        pectoral1.attach(PECTORAL_LEFT_PIN);
+        pectoral2.attach(PECTORAL_RIGHT_PIN);
 	Serial.println("Okay, serial is instantiated");
 }
 
@@ -50,26 +50,24 @@ void setup(){
 
 void actOnDistance1(){
 	distance1=true;
-        count++;
+        //count++;
         //Serial.println("distance1");
 }
-/*void actOnDistance2(){
+void actOnDistance2(){
 	distance2=true;
 }
 
-void actOnLeft(){
-	left=true;
-}
-
-void actOnRight(){
-	right=true;
-}
-*/
-
 /* MAIN EXECUTION LOOP */
 void loop(){
-        int val = analogRead(IR_PIN1);
-        Serial.println(val);
+        int val1 = analogRead(IR_PIN1);
+        int val2 = analogRead(IR_PIN2);
+        
+        //Serial.println(val2);
+        
+        if(val1>210 && val2>210){
+          distance1=true;
+          distance2=true;
+        }
         //float volts = analogRead(IR_PIN1)*0.0048828125;
         //float distance = 65*pow(volts, -1.10); 
 	//Serial.println(distance);
@@ -85,6 +83,7 @@ void loop(){
         delay(5);
         */
 	startServoRoutine();
+        //dorsal.write(140);
         
        //caudal.write(140);
 }
@@ -92,34 +91,20 @@ void loop(){
 /* MOTOR FUNCTION */
 
 void startServoRoutine(){
-	if(distance1){
+	if(distance1 && distance2){
 		//turn right();  //dorsal
-		distance1=false;
-		//writeToDorsalServo(caudal);
-                Serial.println(count);
+		writeToDorsalServo(dorsal);
+                distance1=false;
+                distance2=false;
+                //Serial.println(count);
 	}
-/*
-	if(left){
-		//tilt right(); //one pectoral
-		left=false;
-	}
-	else if(right){
-		//tilt left(); // other pectoral
-		right=false;
-	}
-	if(up){
-		//tilt down(); //both pectorals
-	}
-	else if(down){
-		//tilt up();  //both pectorals
-	}
-        */
         //caudal.write(0);
         //caudal.write(95);
+        //writeToCaudalServo(caudal);
+        writeToPectoralServo(pectoral1, pectoral2);
         writeToCaudalServo(caudal);
-        //writeToPectoralServo(pectoral1, pectoral2);
         //writeToPectoralServoTest(caudal);
-        //writeToDorsalServo(caudal);
+        //writeToDorsalServo(dorsal);
 	//readIRSensor(IR_PIN1, IR_PIN2);
 	//readIRSensor(IR_PIN1);   // USE FOR TESTING PURPOSES
 }
@@ -160,12 +145,26 @@ void writeToPectoralServo(Servo right_servo, Servo left_servo){
         if(angles[1]<339 && angles[1]>180){
           left_servo.write(180);
           right_servo.write(0);
-          delay(100);
+          delay(200);
         }
         else if(angles[1]>30 && angles[1]<180){
           left_servo.write(0);
           right_servo.write(180);
-          delay(100);
+          delay(200);
+        }
+        else{
+         left_servo.write(90);
+         right_servo.write(90);
+         delay(100); 
+        }
+        if(angles[2]<339 && angles[2]>180){
+          left_servo.write(0);
+          right_servo.write(0);
+          delay(200);
+        }
+        else if(angles[2]>30 && angles[2]<180){
+          left_servo.write(180);
+          right_servo.write(180);
         }
         else{
          left_servo.write(90);
@@ -177,15 +176,8 @@ void writeToPectoralServo(Servo right_servo, Servo left_servo){
 }
 
 void writeToDorsalServo(Servo servo){
-        int pos=100;
-        for(pos=100; pos<=140; pos+=20){
-          servo.write(pos);
-          delay(100);
-        }
-        for(pos=140; pos>=100; pos-=20){
-          servo.write(pos);
-          delay(100);
-        }
+       servo.write(96);
+       // inc by 22 degrees: max is 140!
 	//int pos = 180;
 	//servo.write(pos);
 }
